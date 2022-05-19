@@ -14,12 +14,29 @@
   </head>
   <body>
     <form class="search-form" id="search-form">
-      <input type="text" name="searchQuery" autocomplete="off" placeholder="Search images..." />
-      <button type="submit">Search</button>
+      <div class="input-wrap">
+        <input
+          class="search-form__input"
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Search images..."
+        />
+        <button class="search-form__btn" type="submit">
+          <img
+            class="search-form__img"
+            src="./images/active-search.svg"
+            alt=""
+            width="15"
+            height="15"
+          />
+        </button>
+      </div>
     </form>
     <div class="gallery">
       <!-- Карточки изображений -->
     </div>
+    <button type="button" class="load-more">Load more</button>
     <!-- Скрипт идёт последним в разметке. В нём уже подключен главный SASS-файл. -->
     <script src="./index.js"></script>
   </body>

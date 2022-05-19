@@ -1,0 +1,38 @@
+.gallery {
+  width: 1800px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.photo-card {
+  padding: 1px;
+  margin: 10px;
+}
+.info {
+  border-left: 1px solid #cfc8c8;
+  border-bottom: 1px solid #cfc8c8;
+  border-right: 1px solid #cfc8c8;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+.info-item {
+  text-align: center;
+}
+.info-item__wrap {
+  display: block;
+}
+.gallery-item {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+.load-more {
+  display: block;
+  margin: 0 auto;
+  border: none;
+  border-radius: 2px;
+  color: azure;
+  background-color: cornflowerblue;
+}
