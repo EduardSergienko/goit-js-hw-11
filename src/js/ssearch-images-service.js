@@ -1,4 +1,5 @@
 import axios, { Axios } from 'axios';
+
 export default class ImagesApiService {
   constructor() {
     this.searchingImg = '';
@@ -11,6 +12,11 @@ export default class ImagesApiService {
       ` ${BASE_URL}?${API_KEY}&q=${this.searchingImg}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=20`,
     );
   }
+
+  resetPage() {
+    this.page = 1;
+  }
+
   get qwery() {
     return this.searchingImg;
   }

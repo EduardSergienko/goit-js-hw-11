@@ -7,6 +7,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 // import InfiniteScroll from 'infinite-scroll';
 import ImagesApiService from './js/ssearch-images-service';
 const DEBOUNCE_DELAY = 300;
+
 // =======================Посилання на елементи форми=================
 
 const inputEl = document.querySelector('.search-form__input');
@@ -19,41 +20,78 @@ const imagesApiService = new ImagesApiService();
 // ======================Слухачі======================================
 searchBtn.addEventListener('click', onBtnClick);
 showMoreBtn.addEventListener('click', onShowMoreBtnClick);
+window.addEventListener('scroll', onWindowScroll);
+
+// ====================Функції Слухачів===============================
+
 function onBtnClick(evt) {
   evt.preventDefault();
   imagesApiService.qwery = inputEl.value.trim();
-
-  imagesApiService.fetchImages().then(img => {
-    const imgsArray = img.data.hits;
-    console.log(imgsArray);
-    if (imgsArray.length === 0) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    } else {
-      galeryEl.innerHTML = ImgCardRender(imgsArray);
-      new SimpleLightbox('.gallery a', {
-        captionDelay: '250ms',
-        captionsData: 'alt',
-      }).refresh();
-    }
-  });
-  imagesApiService.nexPage += 1;
+  imagesApiService.resetPage();
+  imagesApiService
+    .fetchImages()
+    .then(img => {
+      const imgsArray = img.data.hits;
+      console.log(imgsArray);
+      if (imgsArray.length === 0 || imagesApiService.qwery === '') {
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      } else {
+        galeryEl.innerHTML = ImgCardRender(imgsArray);
+        const lightBox = new SimpleLightbox('.gallery a', {
+          captionDelay: '250ms',
+          captionsData: 'alt',
+        });
+        return lightBox;
+      }
+      imagesApiService.nexPage += 1;
+    })
+    .then(lightBox => {
+      lightBox.refresh();
+    });
 }
 
 function onShowMoreBtnClick() {
   imagesApiService.qwery = inputEl.value.trim();
-  imagesApiService.fetchImages().then(img => {
-    const imgsArray = img.data.hits;
-    console.log(imgsArray);
-    if (imgsArray.length === 0) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    } else {
-      galeryEl.innerHTML = ImgCardRender(imgsArray);
-      new SimpleLightbox('.gallery a', {
+  imagesApiService
+    .fetchImages()
+    .then(img => {
+      const imgsArray = img.data.hits;
+      console.log(img.data);
+      galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
+      const lightBox = new SimpleLightbox('.gallery a', {
         captionDelay: '250ms',
         captionsData: 'alt',
-      }).refresh();
-    }
-  });
+      });
+      lightBox.refresh();
+      imagesApiService.nexPage += 1;
+    })
+    .catch(error => {
+      return console.log(error);
+    });
+}
+function onWindowScroll() {
+  if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+    imagesApiService
+      .fetchImages()
+      .then(img => {
+        const imgsArray = img.data.hits;
+        console.log(img.data);
+        galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
+        const lightBox = new SimpleLightbox('.gallery a', {
+          captionDelay: '250ms',
+          captionsData: 'alt',
+        });
+
+        imagesApiService.nexPage += 1;
+      })
+      .then(lightBox => {
+        lightBox.refresh();
+      })
+      .catch(error => {
+        window.removeEventListener('scroll', onWindowScroll);
+        console.log(error);
+      });
+  }
 }
 
 function ImgCardRender(arg) {
