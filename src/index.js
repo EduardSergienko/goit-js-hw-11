@@ -18,53 +18,64 @@ const imagesApiService = new ImagesApiService();
 
 // ======================Слухачі======================================
 searchBtn.addEventListener('click', onBtnClick);
-document.addEventListener('scroll', smoothScroll);
+// document.addEventListener('scroll', smoothScroll);
 // showMoreBtn.addEventListener('click', onShowMoreBtnClick);
 
 // ====================Функції Слухачів===============================
 let lightBox = null;
 
-function onBtnClick(evt) {
+async function onBtnClick(evt) {
   evt.preventDefault();
   window.addEventListener('scroll', onWindowScroll);
   imagesApiService.qwery = inputEl.value.trim();
   imagesApiService.resetPage();
   if (imagesApiService.qwery !== '') {
-    imagesApiService
-      .fetchImages()
-      .then(img => {
-        const imgsArray = img.data.hits;
-        console.log(imgsArray);
-        if (imgsArray.length === 0) {
-          galeryEl.innerHTML = '';
-          Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.',
-          );
-        } else {
-          galeryEl.innerHTML = ImgCardRender(imgsArray);
-        }
-        imagesApiService.nexPage += 1;
-        return imgsArray;
-      })
-      .then(addLightBox);
+    try {
+      const resolve = await imagesApiService.fetchImages();
+      const imgArray = resolve.data.hits;
+
+      if (imgArray.length === 0) {
+        galeryEl.innerHTML = '';
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      } else {
+        galeryEl.innerHTML = ImgCardRender(imgArray);
+        Notify.info(`Hooray! We found ${resolve.data.totalHits} images.`);
+      }
+
+      imagesApiService.nexPage += 1;
+
+      addLightBox();
+
+      return imgArray;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-function onWindowScroll() {
+async function onWindowScroll() {
   if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-    imagesApiService
-      .fetchImages()
-      .then(img => {
-        const imgsArray = img.data.hits;
+    try {
+      const response = await imagesApiService.fetchImages();
+      const imgsArray = response.data.hits;
+      console.log(imgsArray);
+      if (imgsArray.length === 0) {
+        Notify.failure("We're sorry, but you've reached the end of search results.");
+      } else {
         galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
-        imagesApiService.nexPage += 1;
-        return imgsArray;
-      })
-      .then(refreshLightBox)
-      .catch(error => {
-        window.removeEventListener('scroll', onWindowScroll);
-        console.log(error);
-      });
+        smoothScroll();
+      }
+
+      imagesApiService.nexPage += 1;
+
+      refreshLightBox();
+
+      return imgsArray;
+    } catch (error) {
+      Notify.failure("We're sorry, but you've reached the end of search results.");
+      window.removeEventListener('scroll', onWindowScroll);
+      console.log(error);
+    }
   }
 }
 
