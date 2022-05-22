@@ -1,5 +1,5 @@
 import './sass/main.scss';
-import debounce from 'lodash.debounce';
+
 import axios, { Axios } from 'axios';
 
 import SimpleLightbox from 'simplelightbox';
@@ -22,6 +22,7 @@ searchBtn.addEventListener('click', onBtnClick);
 // showMoreBtn.addEventListener('click', onShowMoreBtnClick);
 
 // ====================Функції Слухачів===============================
+
 let lightBox = null;
 
 async function onBtnClick(evt) {
@@ -78,6 +79,8 @@ async function onWindowScroll() {
     }
   }
 }
+
+// ========================Інші функції==========================================
 
 function ImgCardRender(arg) {
   return arg
