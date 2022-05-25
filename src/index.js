@@ -38,6 +38,7 @@ async function onBtnClick(evt) {
 
       if (imgArray.length === 0) {
         galeryEl.innerHTML = '';
+        showMoreBtn.classList.add('is-hidden');
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       } else if (imgArray.length < 20) {
         galeryEl.innerHTML = ImgCardRender(imgArray);
