@@ -43,6 +43,7 @@ async function onBtnClick(evt) {
       } else if (imgArray.length < 20) {
         galeryEl.innerHTML = ImgCardRender(imgArray);
         Notify.info(`Hooray! We found ${resolve.data.totalHits} images.`);
+        showMoreBtn.classList.add('is-hidden');
       } else {
         galeryEl.innerHTML = ImgCardRender(imgArray);
         showMoreBtn.classList.remove('is-hidden');
@@ -168,3 +169,5 @@ function smoothScroll() {
     behavior: 'smooth',
   });
 }
+
+// ==================
