@@ -30,9 +30,27 @@
 }
 .load-more {
   display: block;
-  margin: 0 auto;
+  margin: 10px auto;
+  padding: 5px 15px;
   border: none;
   border-radius: 2px;
   color: azure;
   background-color: cornflowerblue;
+  cursor: pointer;
+  transition: 0.2s all;
+  &:active {
+    transform: scale(0.98);
+  }
+}
+.is-hidden {
+  display: none;
+}
+.is-disabled {
+  cursor: auto;
+  border: 1px solid darkgray;
+  color: darkgray;
+  background-color: transparent;
+  &:active {
+    transform: scale(1);
+  }
 }

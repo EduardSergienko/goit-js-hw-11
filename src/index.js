@@ -12,22 +12,23 @@ import ImagesApiService from './js/ssearch-images-service';
 const inputEl = document.querySelector('.search-form__input');
 const searchBtn = document.querySelector('.search-form__btn');
 const galeryEl = document.querySelector('.gallery');
-// const showMoreBtn = document.querySelector('.load-more');
+const showMoreBtn = document.querySelector('.load-more');
 
 const imagesApiService = new ImagesApiService();
 
 // ======================Слухачі======================================
 searchBtn.addEventListener('click', onBtnClick);
 // document.addEventListener('scroll', smoothScroll);
-// showMoreBtn.addEventListener('click', onShowMoreBtnClick);
+showMoreBtn.addEventListener('click', onShowMoreBtnClick);
 
 // ====================Функції Слухачів===============================
+showMoreBtn.classList.add('is-hidden');
 
 let lightBox = null;
 
 async function onBtnClick(evt) {
   evt.preventDefault();
-  window.addEventListener('scroll', onWindowScroll);
+  // window.addEventListener('scroll', onWindowScroll);
   imagesApiService.qwery = inputEl.value.trim();
   imagesApiService.resetPage();
   if (imagesApiService.qwery !== '') {
@@ -38,8 +39,12 @@ async function onBtnClick(evt) {
       if (imgArray.length === 0) {
         galeryEl.innerHTML = '';
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      } else if (imgArray.length < 20) {
+        galeryEl.innerHTML = ImgCardRender(imgArray);
+        Notify.info(`Hooray! We found ${resolve.data.totalHits} images.`);
       } else {
         galeryEl.innerHTML = ImgCardRender(imgArray);
+        showMoreBtn.classList.remove('is-hidden');
         Notify.info(`Hooray! We found ${resolve.data.totalHits} images.`);
       }
 
@@ -54,31 +59,62 @@ async function onBtnClick(evt) {
   }
 }
 
-async function onWindowScroll() {
-  if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-    try {
-      const response = await imagesApiService.fetchImages();
-      const imgsArray = response.data.hits;
-      console.log(imgsArray);
-      if (imgsArray.length === 0) {
-        Notify.failure("We're sorry, but you've reached the end of search results.");
-      } else {
-        galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
-        smoothScroll();
-      }
-
-      imagesApiService.nexPage += 1;
-
-      refreshLightBox();
-
-      return imgsArray;
-    } catch (error) {
+async function onShowMoreBtnClick() {
+  imagesApiService.qwery = inputEl.value.trim();
+  try {
+    const response = await imagesApiService.fetchImages();
+    const imgsArray = response.data.hits;
+    console.log(imgsArray);
+    if (imgsArray.length === 0) {
       Notify.failure("We're sorry, but you've reached the end of search results.");
-      window.removeEventListener('scroll', onWindowScroll);
-      console.log(error);
+      showMoreBtn.classList.add('is-hidden');
+    } else if (imgsArray.length < 20) {
+      galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
+      smoothScroll();
+      Notify.failure("We're sorry, but you've reached the end of search results.");
+
+      showMoreBtn.classList.add('is-hidden');
+    } else {
+      galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
+      smoothScroll();
     }
+    imagesApiService.nexPage += 1;
+
+    refreshLightBox();
+
+    return imgsArray;
+  } catch (error) {
+    Notify.failure("We're sorry, but you've reached the end of search results.");
+    showMoreBtn.classList.add('is-hidden');
+    console.log(error);
   }
 }
+
+// async function onWindowScroll() {
+//   if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+//     try {
+//       const response = await imagesApiService.fetchImages();
+//       const imgsArray = response.data.hits;
+//       console.log(imgsArray);
+//       if (imgsArray.length === 0) {
+//         Notify.failure("We're sorry, but you've reached the end of search results.");
+//       } else {
+//         galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
+//         smoothScroll();
+//       }
+
+//       imagesApiService.nexPage += 1;
+
+//       refreshLightBox();
+
+//       return imgsArray;
+//     } catch (error) {
+//       Notify.failure("We're sorry, but you've reached the end of search results.");
+
+//       console.log(error);
+//     }
+//   }
+// }
 
 // ========================Інші функції==========================================
 
@@ -131,23 +167,3 @@ function smoothScroll() {
     behavior: 'smooth',
   });
 }
-
-// function onShowMoreBtnClick() {
-//   imagesApiService.qwery = inputEl.value.trim();
-//   imagesApiService
-//     .fetchImages()
-//     .then(img => {
-//       const imgsArray = img.data.hits;
-//       console.log(img.data);
-//       galeryEl.insertAdjacentHTML('beforeend', ImgCardRender(imgsArray));
-//       const lightBox = new SimpleLightbox('.gallery a', {
-//         captionDelay: '250ms',
-//         captionsData: 'alt',
-//       });
-//       lightBox.refresh();
-//       imagesApiService.nexPage += 1;
-//     })
-//     .catch(error => {
-//       return console.log(error);
-//     });
-// }
